@@ -15,6 +15,15 @@ public class Player : MonoBehaviour
     private bool isGrounded;
     private bool doDoubleJump;
     public LayerMask groundFloor;
+
+    [Header("Attack")]
+    public Transform attackPoint;
+    public float attackRange = 0.5f;
+    public LayerMask enemyLayers;
+    public int attackDamage = 20;
+    public float attackRate = 2f;
+    public float nextAttackTime = 0f;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -52,9 +61,37 @@ public class Player : MonoBehaviour
             }
             playerRigidbody.velocity = new Vector2(playerRigidbody.velocity.x, jumpForce);
         }
+        if (Time.time >= nextAttackTime)
+        {
+            if (Input.GetKeyDown(KeyCode.P))
+            {
+                MeleAttack();
+                nextAttackTime = Time.time + 1f / attackRate;
+            }
+        }
 
 
         playerAnimator.SetBool("IsGrounded", isGrounded);
         playerAnimator.SetFloat("Speed", Mathf.Abs(playerRigidbody.velocity.x));
+    }
+
+    public void MeleAttack()
+    {
+        // play Attack
+        playerAnimator.SetTrigger("Attack");
+        //Detect Enemy area attack
+        Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(attackPoint.position, attackRange, enemyLayers);
+        //Damage
+        foreach (Collider2D enemy in hitEnemies)
+        {
+            enemy.GetComponent<Enemy>().TakeDamage(attackDamage);
+        }
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        if (attackPoint == null)
+            return;
+        Gizmos.DrawWireSphere(attackPoint.position, attackRange);
     }
 }
