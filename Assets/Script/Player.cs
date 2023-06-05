@@ -15,6 +15,7 @@ public class Player : MonoBehaviour
     private bool isGrounded;
     private bool doDoubleJump;
     public LayerMask groundFloor;
+    public GameObject jumpEffect;
 
     [Header("Attack")]
     public Transform attackPoint;
@@ -23,6 +24,10 @@ public class Player : MonoBehaviour
     public int attackDamage = 20;
     public float attackRate = 2f;
     public float nextAttackTime = 0f;
+
+    [Header("Range Attack")]
+    public PlayerShoot Fire;
+    public Transform shootPoint;
 
     // Start is called before the first frame update
     void Start()
@@ -50,6 +55,7 @@ public class Player : MonoBehaviour
         //Jumping
         if (Input.GetButtonDown("Jump") && (isGrounded || doDoubleJump))
         {
+            Instantiate(jumpEffect, transform.position, transform.rotation);
             if (isGrounded)
             {
                 doDoubleJump = true;
@@ -73,6 +79,13 @@ public class Player : MonoBehaviour
 
         playerAnimator.SetBool("IsGrounded", isGrounded);
         playerAnimator.SetFloat("Speed", Mathf.Abs(playerRigidbody.velocity.x));
+
+        //Fire nembak
+        if (Input.GetButtonDown("Fire1"))
+        {
+            Instantiate(Fire, shootPoint.position, shootPoint.rotation).moveDirection = new Vector2(transform.localScale.x, 0);
+        }
+
     }
 
     public void MeleAttack()
